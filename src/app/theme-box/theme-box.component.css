@@ -7,3 +7,7 @@
 {
 	white-space: nowrap 
 }
+#submitButton
+{
+	color: gray;
+}

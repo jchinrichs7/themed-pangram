@@ -1,4 +1,5 @@
-<section id="theme-instructions">Enter theme here:</section>
-<input type="text" name="theme-box">  
-<button class="button" type="button" id="submit" (click)="submitTheme()">Submit</button>
-<span>hello</span>
+<form #themeEntry="ngForm" (ngSubmit)="getValues(themeEntry.value.theme)">
+	<input type="text" ngModel id="text" name="theme" placeholder="enter theme">
+	<button type="button" (click)="submitTheme()" id="submitButton">Submit</button>
+</form>
+<h3>{{theme.value}}</h3>
