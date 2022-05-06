@@ -3,3 +3,4 @@
 	<button type="button" (click)="submitTheme()" id="submitButton">Submit</button>
 </form>
 <h3>{{theme.value}}</h3>
+<h3 *ngFor="let word of association">{{word}}<br></h3>
