@@ -9,28 +9,31 @@ import { Theme } from '../theme';
 })
 export class ThemeBoxComponent implements OnInit {
 
+  errorMsg = ""
   theme: Theme = {
     value: "",
     letters: []
   }
 
-  association: string[] = ['hi', 'there']
+  association: string[] = []
 
   //this is if the user hits submit
-  submitTheme(): void {
-    this.getValues((<HTMLInputElement>document.getElementById("text")).value.toString())
+  submitThemeButton(): void {
+    this.submitThemeEnterKey((<HTMLInputElement>document.getElementById("text")).value.toString())
   }
 
-  copyValues(arr:any): void{
+  setError(err:any): void {
+    console.error(err);
+    this.errorMsg = "Try another word."
+
+  }
+  copyValues(arr: any): void{
     this.association = arr.associations.replace(/,/g, '').split(" ");
     console.log(this.association)
-    
   }
 
-  //this is if the user hits enter on the box
-  getValues(val: string)
+  getAssociatedWords(word: string)
   {
-    this.theme.value = val;
     const options = {
     method: 'GET',
     headers: {
@@ -38,10 +41,18 @@ export class ThemeBoxComponent implements OnInit {
       'X-RapidAPI-Key': '82c7604abfmsh1a50896f4be8971p1886cejsn0203aeca9f75'
     }
   };
-  fetch('https://twinword-word-associations-v1.p.rapidapi.com/associations/?entry=sound', options)
+  fetch('https://twinword-word-associations-v1.p.rapidapi.com/associations/?entry='+word, options)
     .then(response => response.json())
     .then(response => this.copyValues(response))
-    .catch(err => console.error(err));
+    .then( () => this.errorMsg = '')
+    .catch(err => this.setError(err)); 
+  }
+
+  //this is if the user hits enter on the box
+  submitThemeEnterKey(val: string)
+  {
+    this.theme.value = val;
+    this.getAssociatedWords(this.theme.value)
   }
 
 

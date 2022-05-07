@@ -1,6 +1,7 @@
-<form #themeEntry="ngForm" (ngSubmit)="getValues(themeEntry.value.theme)">
+<form #themeEntry="ngForm" (ngSubmit)="submitThemeEnterKey(themeEntry.value.theme)">
 	<input type="text" ngModel id="text" name="theme" placeholder="enter theme">
-	<button type="button" (click)="submitTheme()" id="submitButton">Submit</button>
+	<button type="button" (click)="submitThemeButton()" id="submitButton">Submit</button>
 </form>
-<h3>{{theme.value}}</h3>
-<h3 *ngFor="let word of association">{{word}}<br></h3>
+<h3 *ngIf="errorMsg==''">{{theme.value}}</h3>
+<h4 *ngIf="errorMsg!=''">{{errorMsg}}</h4>
+<h6 *ngFor="let word of association">{{word}}</h6>
