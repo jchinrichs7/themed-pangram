@@ -48,14 +48,25 @@ export class ThemeBoxComponent implements OnInit {
     .catch(err => this.setError(err)); 
   }
 
+  getPartsOfSpeech(arr:any)
+  {
+    for (let i = 0; i < arr.length; i++)
+    {
+      console.log(this.theme.value + ": " + arr[i].partOfSpeech)
+    }
+  }
+
   //this is if the user hits enter on the box
   submitThemeEnterKey(val: string)
   {
     this.theme.value = val;
     this.getAssociatedWords(this.theme.value)
+
+    fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+this.theme.value.toString())
+    .then(response => response.json())
+    .then(response => this.getPartsOfSpeech(response[0].meanings))
+  
   }
-
-
 
   constructor() { }
 
