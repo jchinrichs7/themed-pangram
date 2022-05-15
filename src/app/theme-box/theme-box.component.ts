@@ -54,10 +54,26 @@ export class ThemeBoxComponent implements OnInit {
     let associatedWords = await this.getAssociatedWords(this.theme.value)
     console.log(associatedWords)
 
+    let partsOfSpeech: string[] = [];
+
+    for (let i = 0; i < associatedWords.length; i++)
+    {
+      let responseArr = await this.getDiccionaryInformation(associatedWords[i])
+      partsOfSpeech[i] =  associatedWords[i] + ","
+      for (let j = 0; j < responseArr.length; j++)
+      {
+        partsOfSpeech[i] += responseArr[j]
+        if(j+1 < responseArr.length) partsOfSpeech[i] += ","
+      }
+    }
+
+    for (let i = 0; i < partsOfSpeech.length; i++)
+    {
+      console.log(partsOfSpeech[i])
+    }
+
   } 
 
-  
-  
   async getAssociatedWords(word: string): Promise<string>
   {
     const options = {
@@ -75,11 +91,12 @@ export class ThemeBoxComponent implements OnInit {
       return res;
   }
 
-  getDiccionaryInformation(word: string)
+  async getDiccionaryInformation(word: string): Promise<string[]>
   {
-    fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+word)
+    let res = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+word)
     .then(response => response.json())
-    .then(response => { this.getPartsOfSpeech(word, response[0].meanings) })
+    .then(response => { return this.getPartsOfSpeech(word, response[0].meanings) })
+    return res
   }
 
 
@@ -87,7 +104,7 @@ export class ThemeBoxComponent implements OnInit {
     return arr.associations.replace(/,/g, '').split(" ");
   }
 
-  getPartsOfSpeech(word: string, arr:any)
+  async getPartsOfSpeech(word: string, arr:any)
   {
 
     let noun = false
@@ -96,14 +113,11 @@ export class ThemeBoxComponent implements OnInit {
     let adverb = false
     let ans: string[] = []
 
-    ans.push(word)
-
     for (let i = 0; i < arr.length; i++)
     {
       ans.push(arr[i].partOfSpeech)
     }
-    this.relatedWords.push(ans)
-    console.log("Pushing...")
+    return ans
   }
 
 
