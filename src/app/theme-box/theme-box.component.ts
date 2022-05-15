@@ -1,6 +1,3 @@
-//https://www.freecodecamp.org/news/async-await-javascript-tutorial/
-//cmd option 2
-//918 pm
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Theme } from '../theme';
@@ -12,10 +9,12 @@ import { Injectable } from '@angular/core';
   templateUrl: './theme-box.component.html',
   styleUrls: ['./theme-box.component.css']
 })
+
 export class ThemeBoxComponent implements OnInit {
 
   errorMsg = ""
-  theme: Theme = {
+  theme: Theme = 
+  {
     value: "",
     letters: []
   }
@@ -23,13 +22,15 @@ export class ThemeBoxComponent implements OnInit {
   association: string[] = []
   relatedWords: string[][] = []
 
-  setError(err:any): void {
+  setError(err:any): void 
+  {
     console.error(err);
     this.errorMsg = "Try another word."
   }
 
   //this is if the user hits submit
-  submitThemeButton(): void {
+  submitThemeButton(): void 
+  {
     this.submitThemeEnterKey((<HTMLInputElement>document.getElementById("text")).value.toString())
   }
 
@@ -38,6 +39,7 @@ export class ThemeBoxComponent implements OnInit {
   {
     //set the theme value
     this.theme.value = val;
+    /* should just get the part of speech for this separately */
 
     //set [a=false; b=false .... z=false]
     for(let i = 0; i < 26; i++)
@@ -51,25 +53,26 @@ export class ThemeBoxComponent implements OnInit {
       this.letters[Number(val.toLowerCase().charCodeAt(i) - 96)-1] = true
     }
 
-    let associatedWords = await this.getAssociatedWords(this.theme.value)
+    //get associated words
+    let associatedWords: string = await this.getAssociatedWords(this.theme.value)
     console.log(associatedWords)
 
-    let partsOfSpeech: string[] = [];
-
+    //partsofspeech = ["associatedword, partOfSpeech1, partOfSpeech2 ... N", "assoc2" ..]
+    let relatedInfo: string[] = [];
     for (let i = 0; i < associatedWords.length; i++)
     {
-      let responseArr = await this.getDiccionaryInformation(associatedWords[i])
-      partsOfSpeech[i] =  associatedWords[i] + ","
+      let responseArr = await this.getPartsOfSpeech(associatedWords[i])
+      relatedInfo[i] =  associatedWords[i] + ","
       for (let j = 0; j < responseArr.length; j++)
       {
-        partsOfSpeech[i] += responseArr[j]
-        if(j+1 < responseArr.length) partsOfSpeech[i] += ","
+        relatedInfo[i] += responseArr[j]
+        if(j+1 < responseArr.length) relatedInfo[i] += ","
       }
     }
 
-    for (let i = 0; i < partsOfSpeech.length; i++)
+    for (let i = 0; i < relatedInfo.length; i++)
     {
-      console.log(partsOfSpeech[i])
+      console.log(relatedInfo[i])
     }
 
   } 
@@ -85,41 +88,28 @@ export class ThemeBoxComponent implements OnInit {
     };
     let res = await fetch('https://twinword-word-associations-v1.p.rapidapi.com/associations/?entry='+word, options)
       .then(response => response.json())
-      .then(response => {return this.copyValues(response)})
+      .then(response => { return response.associations.replace(/,/g, '').split(" ");})
       .catch(err => this.setError(err)); 
 
-      return res;
+      return res
   }
 
-  async getDiccionaryInformation(word: string): Promise<string[]>
+  async getPartsOfSpeech(word: string): Promise<string[]>
   {
     let res = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+word)
     .then(response => response.json())
-    .then(response => { return this.getPartsOfSpeech(word, response[0].meanings) })
+    .then(response => { 
+
+      let ans: string[] = []
+
+      for (let i = 0; i < response[0].meanings.length; i++)
+      {
+        ans.push(response[0].meanings[i].partOfSpeech)
+      }
+      return ans
+    })
     return res
   }
-
-
-  copyValues(arr: any) {
-    return arr.associations.replace(/,/g, '').split(" ");
-  }
-
-  async getPartsOfSpeech(word: string, arr:any)
-  {
-
-    let noun = false
-    let verb = false
-    let adjective = false
-    let adverb = false
-    let ans: string[] = []
-
-    for (let i = 0; i < arr.length; i++)
-    {
-      ans.push(arr[i].partOfSpeech)
-    }
-    return ans
-  }
-
 
   constructor() { }
 
