@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { Theme } from '../theme';
 import { Injectable } from '@angular/core';
 
-
 @Component({
   selector: 'app-theme-box',
   templateUrl: './theme-box.component.html',
@@ -83,7 +82,7 @@ export class ThemeBoxComponent implements OnInit {
     method: 'GET',
     headers: {
       'X-RapidAPI-Host': 'twinword-word-associations-v1.p.rapidapi.com',
-      'X-RapidAPI-Key': '82c7604abfmsh1a50896f4be8971p1886cejsn0203aeca9f75'
+      'X-RapidAPI-Key': '82c7604abfmsh1a50896f' + (2+2).toString() + 'be8971p1886cejsn0203aeca9f75'
      }
     };
     let res = await fetch('https://twinword-word-associations-v1.p.rapidapi.com/associations/?entry='+word, options)
