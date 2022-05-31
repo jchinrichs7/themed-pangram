@@ -54,7 +54,6 @@ export class ThemeBoxComponent implements OnInit {
 
     //get associated words
     let associatedWords: string = await this.getAssociatedWords(this.theme.value)
-    console.log(associatedWords)
 
     //partsofspeech = ["associatedword, partOfSpeech1, partOfSpeech2 ... N", "assoc2" ..]
     let relatedInfo: string[] = [];
@@ -74,7 +73,57 @@ export class ThemeBoxComponent implements OnInit {
       console.log(relatedInfo[i])
     }
 
+    let themePartsOfSpeech = await this.getPartsOfSpeech(this.theme.value)
+    
+
+    let sentence = this.theme.value + " "
+    let candidateNextWords: string[] = []
+    if(themePartsOfSpeech.includes('adjective')) 
+    {
+      // N V N
+      // A N V N
+      // V A N !
+      
+      for(let i = 0; i < relatedInfo.length; i++)
+      {
+        if(relatedInfo[i].indexOf('noun') != -1) // this word is a noun
+        {
+          candidateNextWords.push(relatedInfo[i].split(",")[0])
+        }
+      }
+
+      console.log(candidateNextWords)
+
+    }
+
+
+    console.log(this.newLetterIndicies(".","abcdefghijklmnopqrstuvwxyz"))
+
+
   } 
+
+  newLetterIndicies(sentence: string, word: string): number[]
+  {
+    let indicies: number[] = []
+    for(let i = 0; i < word.length; i++)
+    {
+      let found: boolean = false
+      for(let j = 0; j < sentence.length; j++)
+      {
+        if(word.charAt(i) == sentence.charAt(j))
+        {
+          found = true
+          break
+        }
+      }
+
+      if (!found)
+      {
+        indicies.push(Number(word.toLowerCase().charCodeAt(i) - 96)-1)
+      }
+    }
+    return indicies
+  }
 
   async getAssociatedWords(word: string): Promise<string>
   {
