@@ -41,7 +41,6 @@ export class ThemeBoxComponent implements OnInit {
   {
     //set the theme value
     this.theme.value = val;
-    /* should just get the part of speech for this separately */
 
     //set [a=false; b=false .... z=false]
     for(let i = 0; i < 26; i++)
@@ -70,17 +69,15 @@ export class ThemeBoxComponent implements OnInit {
         if(j+1 < responseArr.length) this.relatedInfo[i] += ","
       }
     }
-
-    
     console.log(this.relatedInfo)
     
-
-    let themePartsOfSpeech = await this.getPartsOfSpeech(this.theme.value)
     
 
-    this.sentence = this.theme.value + " "
-
+  
     //start putting the sentence together
+    this.sentence = this.theme.value + " "
+    let themePartsOfSpeech = await this.getPartsOfSpeech(this.theme.value)
+
     if(themePartsOfSpeech.includes('adjective')) 
     {
       this.sentence = this.sentence + " " + this.getBestWordOfType('noun')
