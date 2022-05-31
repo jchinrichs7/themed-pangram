@@ -20,6 +20,9 @@ export class ThemeBoxComponent implements OnInit {
   letters: boolean[] = []
   association: string[] = []
   relatedWords: string[][] = []
+  relatedInfo: string[] = []
+  candidateNextWords: string[] = []
+  sentence: string = ""
 
   setError(err:any): void 
   {
@@ -56,51 +59,127 @@ export class ThemeBoxComponent implements OnInit {
     let associatedWords: string = await this.getAssociatedWords(this.theme.value)
 
     //partsofspeech = ["associatedword, partOfSpeech1, partOfSpeech2 ... N", "assoc2" ..]
-    let relatedInfo: string[] = [];
+    //let this.relatedInfo: string[] = [];
     for (let i = 0; i < associatedWords.length; i++)
     {
       let responseArr = await this.getPartsOfSpeech(associatedWords[i])
-      relatedInfo[i] =  associatedWords[i] + ","
+      this.relatedInfo[i] =  associatedWords[i] + ","
       for (let j = 0; j < responseArr.length; j++)
       {
-        relatedInfo[i] += responseArr[j]
-        if(j+1 < responseArr.length) relatedInfo[i] += ","
+        this.relatedInfo[i] += responseArr[j]
+        if(j+1 < responseArr.length) this.relatedInfo[i] += ","
       }
     }
 
-    for (let i = 0; i < relatedInfo.length; i++)
+    for (let i = 0; i < this.relatedInfo.length; i++)
     {
-      console.log(relatedInfo[i])
+      console.log(this.relatedInfo[i])
     }
 
     let themePartsOfSpeech = await this.getPartsOfSpeech(this.theme.value)
     
 
-    let sentence = this.theme.value + " "
-    let candidateNextWords: string[] = []
+   this.sentence = this.theme.value + " "
+    //let this.candidateNextWords: string[] = []
+
+
     if(themePartsOfSpeech.includes('adjective')) 
     {
       // N V N
       // A N V N
-      // V A N !
+      // V A N
       
-      for(let i = 0; i < relatedInfo.length; i++)
+      for(let i = 0; i < this.relatedInfo.length; i++)
       {
-        if(relatedInfo[i].indexOf('noun') != -1) // this word is a noun
+        if(this.relatedInfo[i].indexOf('noun') != -1) // this word is a noun
         {
-          candidateNextWords.push(relatedInfo[i].split(",")[0])
+          this.candidateNextWords.push(this.relatedInfo[i].split(",")[0])
         }
       }
 
-      console.log(candidateNextWords)
+      if(this.candidateNextWords.length == 0) return 
+      console.log(this.candidateNextWords)
+      let bestCandidate = ""
+      let maxNewLetters = -1
+
+      for(let i = 0; i < this.candidateNextWords.length; i++)
+      {
+        let thisNewLetters = this.newLetterIndicies(this.sentence, this.candidateNextWords[i])
+        if (thisNewLetters.length > maxNewLetters)
+        {
+          bestCandidate = this.candidateNextWords[i]
+          maxNewLetters = thisNewLetters.length
+        }
+      }
+
+      console.log(bestCandidate + ", " + maxNewLetters + " new letters !")
 
     }
+    else if (themePartsOfSpeech.includes('noun'))
+    {
+      for(let i = 0; i < this.relatedInfo.length; i++)
+      {
+        if(this.relatedInfo[i].indexOf('adjective') != -1) // this word is a noun
+        {
+          this.candidateNextWords.push(this.relatedInfo[i].split(",")[0])
+        }
+      }
 
+      if(this.candidateNextWords.length == 0) return 
+      console.log(this.candidateNextWords)
+      let bestCandidate = ""
+      let maxNewLetters = -1
 
-    console.log(this.newLetterIndicies(".","abcdefghijklmnopqrstuvwxyz"))
+      for(let i = 0; i < this.candidateNextWords.length; i++)
+      {
+        let thisNewLetters = this.newLetterIndicies(this.sentence, this.candidateNextWords[i])
+        if (thisNewLetters.length > maxNewLetters)
+        {
+          bestCandidate = this.candidateNextWords[i]
+          maxNewLetters = thisNewLetters.length
+        }
+      }
 
+      console.log(bestCandidate + ", " + maxNewLetters + " new letters !")
+      this.sentence = bestCandidate + " " + this.sentence.toLowerCase()
 
+      
+      this.sentence += this.getBestWordOfType('verb')
+      
+      console.log(this.sentence)
+
+    }
   } 
+
+  getBestWordOfType(type: string)
+  {
+    for(let i = 0; i < this.relatedInfo.length; i++)
+      {
+        if(this.relatedInfo[i].indexOf(type) != -1) // this word is of the type we want
+        {
+          console.log(type)
+          this.candidateNextWords.push(this.relatedInfo[i].split(",")[0])
+        }
+      }
+
+      if(this.candidateNextWords.length == 0) return 
+      console.log(this.candidateNextWords)
+      let bestCandidate = ""
+      let maxNewLetters = -1
+
+      for(let i = 0; i < this.candidateNextWords.length; i++)
+      {
+        let thisNewLetters = this.newLetterIndicies(this.sentence, this.candidateNextWords[i])
+        if (thisNewLetters.length > maxNewLetters)
+        {
+          bestCandidate = this.candidateNextWords[i]
+          maxNewLetters = thisNewLetters.length
+        }
+      }
+
+      console.log(bestCandidate + ", " + maxNewLetters + " new letters !")
+      return([bestCandidate, maxNewLetters])
+  }
 
   newLetterIndicies(sentence: string, word: string): number[]
   {
@@ -108,9 +187,9 @@ export class ThemeBoxComponent implements OnInit {
     for(let i = 0; i < word.length; i++)
     {
       let found: boolean = false
-      for(let j = 0; j < sentence.length; j++)
+      for(let j = 0; j < this.sentence.length; j++)
       {
-        if(word.charAt(i) == sentence.charAt(j))
+        if(word.charAt(i) == this.sentence.charAt(j))
         {
           found = true
           break
@@ -119,7 +198,11 @@ export class ThemeBoxComponent implements OnInit {
 
       if (!found)
       {
-        indicies.push(Number(word.toLowerCase().charCodeAt(i) - 96)-1)
+        //make sure its not already in the array
+        if(indicies.indexOf(Number(word.toLowerCase().charCodeAt(i) - 96)-1) == -1)
+        {
+          indicies.push(Number(word.toLowerCase().charCodeAt(i) - 96)-1)
+        }
       }
     }
     return indicies
@@ -136,7 +219,7 @@ export class ThemeBoxComponent implements OnInit {
     };
     let res = await fetch('https://twinword-word-associations-v1.p.rapidapi.com/associations/?entry='+word, options)
       .then(response => response.json())
-      .then(response => { return response.associations.replace(/,/g, '').split(" ");})
+      .then(response => {return response.associations.replace(/,/g, '').split(" ");})
       .catch(err => this.setError(err)); 
 
       return res
@@ -147,7 +230,6 @@ export class ThemeBoxComponent implements OnInit {
     let res = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+word)
     .then(response => response.json())
     .then(response => { 
-
       let ans: string[] = []
 
       for (let i = 0; i < response[0].meanings.length; i++)
