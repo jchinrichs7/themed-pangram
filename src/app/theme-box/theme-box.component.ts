@@ -71,114 +71,59 @@ export class ThemeBoxComponent implements OnInit {
       }
     }
 
-    for (let i = 0; i < this.relatedInfo.length; i++)
-    {
-      console.log(this.relatedInfo[i])
-    }
+    
+    console.log(this.relatedInfo)
+    
 
     let themePartsOfSpeech = await this.getPartsOfSpeech(this.theme.value)
     
 
-   this.sentence = this.theme.value + " "
-    //let this.candidateNextWords: string[] = []
+    this.sentence = this.theme.value + " "
 
-
+    //start putting the sentence together
     if(themePartsOfSpeech.includes('adjective')) 
     {
-      // N V N
-      // A N V N
-      // V A N
-      
-      for(let i = 0; i < this.relatedInfo.length; i++)
-      {
-        if(this.relatedInfo[i].indexOf('noun') != -1) // this word is a noun
-        {
-          this.candidateNextWords.push(this.relatedInfo[i].split(",")[0])
-        }
-      }
-
-      if(this.candidateNextWords.length == 0) return 
-      console.log(this.candidateNextWords)
-      let bestCandidate = ""
-      let maxNewLetters = -1
-
-      for(let i = 0; i < this.candidateNextWords.length; i++)
-      {
-        let thisNewLetters = this.newLetterIndicies(this.sentence, this.candidateNextWords[i])
-        if (thisNewLetters.length > maxNewLetters)
-        {
-          bestCandidate = this.candidateNextWords[i]
-          maxNewLetters = thisNewLetters.length
-        }
-      }
-
-      console.log(bestCandidate + ", " + maxNewLetters + " new letters !")
-
+      this.sentence = this.sentence + " " + this.getBestWordOfType('noun')
     }
     else if (themePartsOfSpeech.includes('noun'))
     {
-      for(let i = 0; i < this.relatedInfo.length; i++)
-      {
-        if(this.relatedInfo[i].indexOf('adjective') != -1) // this word is a noun
-        {
-          this.candidateNextWords.push(this.relatedInfo[i].split(",")[0])
-        }
-      }
-
-      if(this.candidateNextWords.length == 0) return 
-      console.log(this.candidateNextWords)
-      let bestCandidate = ""
-      let maxNewLetters = -1
-
-      for(let i = 0; i < this.candidateNextWords.length; i++)
-      {
-        let thisNewLetters = this.newLetterIndicies(this.sentence, this.candidateNextWords[i])
-        if (thisNewLetters.length > maxNewLetters)
-        {
-          bestCandidate = this.candidateNextWords[i]
-          maxNewLetters = thisNewLetters.length
-        }
-      }
-
-      console.log(bestCandidate + ", " + maxNewLetters + " new letters !")
-      this.sentence = bestCandidate + " " + this.sentence.toLowerCase()
-
-      
+      this.sentence = this.getBestWordOfType('adjective') + " " + this.sentence
       this.sentence += this.getBestWordOfType('verb')
-      
-      console.log(this.sentence)
 
     }
+
+    console.log(this.sentence.toLowerCase())
   } 
 
   getBestWordOfType(type: string)
   {
+     let bestCandidate = ""
     for(let i = 0; i < this.relatedInfo.length; i++)
-      {
+    {
         if(this.relatedInfo[i].indexOf(type) != -1) // this word is of the type we want
         {
           console.log(type)
           this.candidateNextWords.push(this.relatedInfo[i].split(",")[0])
         }
-      }
+    }
 
-      if(this.candidateNextWords.length == 0) return 
-      console.log(this.candidateNextWords)
-      let bestCandidate = ""
-      let maxNewLetters = -1
+    if(this.candidateNextWords.length == 0) return 
+    console.log(this.candidateNextWords)
+   
+    let maxNewLetters = -1
 
-      for(let i = 0; i < this.candidateNextWords.length; i++)
+    for(let i = 0; i < this.candidateNextWords.length; i++)
+    {
+      let thisNewLetters = this.newLetterIndicies(this.sentence, this.candidateNextWords[i])
+      if (thisNewLetters.length > maxNewLetters)
       {
-        let thisNewLetters = this.newLetterIndicies(this.sentence, this.candidateNextWords[i])
-        if (thisNewLetters.length > maxNewLetters)
-        {
-          bestCandidate = this.candidateNextWords[i]
-          maxNewLetters = thisNewLetters.length
-        }
+        bestCandidate = this.candidateNextWords[i]
+        maxNewLetters = thisNewLetters.length
       }
+    }
 
-      console.log(bestCandidate + ", " + maxNewLetters + " new letters !")
-      return([bestCandidate, maxNewLetters])
+    console.log(bestCandidate + ", " + maxNewLetters + " new letters !")
+    return(bestCandidate)
   }
 
   newLetterIndicies(sentence: string, word: string): number[]
