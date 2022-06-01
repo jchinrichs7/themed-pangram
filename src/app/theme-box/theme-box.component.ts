@@ -12,11 +12,7 @@ import { Injectable } from '@angular/core';
 export class ThemeBoxComponent implements OnInit {
 
   errorMsg = ""
-  theme: Theme = 
-  {
-    value: "",
-    letters: []
-  }
+  theme: Theme = { value: "", letters: [] }
   letters: boolean[] = []
   association: string[] = []
   relatedWords: string[][] = []
@@ -57,12 +53,10 @@ export class ThemeBoxComponent implements OnInit {
     //get associated words
     let associatedWords: string = await this.getAssociatedWords(this.theme.value)
 
-    //partsofspeech = ["associatedword, partOfSpeech1, partOfSpeech2 ... N", "assoc2" ..]
-    //let this.relatedInfo: string[] = [];
     for (let i = 0; i < associatedWords.length; i++)
     {
       let responseArr = await this.getPartsOfSpeech(associatedWords[i])
-      this.relatedInfo[i] =  associatedWords[i] + ","
+      this.relatedInfo[i] = associatedWords[i] + ","
       for (let j = 0; j < responseArr.length; j++)
       {
         this.relatedInfo[i] += responseArr[j]
@@ -71,9 +65,6 @@ export class ThemeBoxComponent implements OnInit {
     }
     console.log(this.relatedInfo)
     
-    
-
-  
     //start putting the sentence together
     this.sentence = this.theme.value + " "
     let themePartsOfSpeech = await this.getPartsOfSpeech(this.theme.value)
@@ -86,7 +77,6 @@ export class ThemeBoxComponent implements OnInit {
     {
       this.sentence = this.getBestWordOfType('adjective') + " " + this.sentence
       this.sentence += this.getBestWordOfType('verb')
-
     }
 
     console.log(this.sentence.toLowerCase())
@@ -94,14 +84,14 @@ export class ThemeBoxComponent implements OnInit {
 
   getBestWordOfType(type: string)
   {
-     let bestCandidate = ""
+    let bestCandidate = ""
     for(let i = 0; i < this.relatedInfo.length; i++)
     {
-        if(this.relatedInfo[i].indexOf(type) != -1) // this word is of the type we want
-        {
-          console.log(type)
-          this.candidateNextWords.push(this.relatedInfo[i].split(",")[0])
-        }
+      if(this.relatedInfo[i].indexOf(type) != -1) // this word is of the type we want
+      {
+        console.log(type)
+        this.candidateNextWords.push(this.relatedInfo[i].split(",")[0])
+      }
     }
 
     if(this.candidateNextWords.length == 0) return 
@@ -164,7 +154,7 @@ export class ThemeBoxComponent implements OnInit {
       .then(response => {return response.associations.replace(/,/g, '').split(" ");})
       .catch(err => this.setError(err)); 
 
-      return res
+    return res
   }
 
   async getPartsOfSpeech(word: string): Promise<string[]>
@@ -185,7 +175,8 @@ export class ThemeBoxComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
+  ngOnInit(): void 
+  {
   }
 
 }
